@@ -25,8 +25,8 @@ module TbxImporter
       end
       @doc = {
         source_language: "",
-        tc: { id: "", counter: 0, vals: [], lang: "" },
-        term: { lang: "", counter: 0, vals: [] },
+        tc: { id: "", counter: 0, vals: [], lang: "", definition: "" },
+        term: { lang: "", counter: 0, vals: [], part_of_speech: "" },
         language_pairs: [],
         term_entry: false
       }
@@ -114,26 +114,33 @@ module TbxImporter
         @doc[:lang] = reader.get_attribute("lang") || reader.get_attribute("xml:lang")
         @doc[:language_pairs] << @doc[:lang]
       when [116, 101, 114, 109, 69, 110, 116, 114, 121] #termEntry
-        write_tc(reader)
+        write_tc
       when [108, 97, 110, 103, 83, 101, 116] #langSet
         @doc[:term][:lang] = reader.get_attribute("lang") || reader.get_attribute("xml:lang")
         @doc[:language_pairs] << @doc[:term][:lang]
       when [116, 101, 114, 109] #term
         write_term(reader)
       when [116, 101, 114, 109, 78, 111, 116, 101] #termNote
+        @doc[:term][:part_of_speech] = PrettyStrings::Cleaner.new(reader.read_string.downcase).pretty.gsub("\\","&#92;").gsub("'",%q(\\\')) if reader.get_attribute("type").eql?("partOfSpeech")
+        @doc[:term][:vals].pop
+        write_term(reader)
       when [100, 101, 115, 99, 114, 105, 112] #descrip
+        @doc[:tc][:definition] = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("\\","&#92;").gsub("'",%q(\\\')) if reader.get_attribute("type").eql?("definition")
+        @doc[:tc][:vals].pop
+        write_tc
       end
     end
 
-    def write_tc(reader)
-      @doc[:tc][:vals] << [@doc[:tc][:id]]
+    def write_tc
+      @doc[:tc][:vals] << [@doc[:tc][:id], @doc[:tc][:definition]]
+      @doc[:tc][:definition] = ""
     end
 
     def write_term(reader)
       return if reader.read_string.nil?
       text = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("\\","&#92;").gsub("'",%q(\\\'))
       word_count = text.gsub("\s+", ' ').split(' ').length
-      @doc[:term][:vals] << [@doc[:tc][:id], @doc[:term][:lang], text]
+      @doc[:term][:vals] << [@doc[:tc][:id], @doc[:term][:lang], @doc[:term][:part_of_speech], text]
     end
 
     def generate_unique_id

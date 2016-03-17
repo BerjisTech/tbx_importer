@@ -38,6 +38,18 @@ describe TbxImporter do
       expect(tbx[0][-1][0]).to eq(tbx[1][-1][0])
     end
 
+    it 'imports a UTF-8 TBX file 4' do
+      file_path = File.expand_path('../tbx_importer/spec/sample_files/sample_1(utf-8).tbx')
+      tbx = TbxImporter::Tbx.new(file_path: file_path).import
+      expect(tbx[0][1][1]).to eq("To shorten the fractional part of a number, increasing the last remaining (rightmost) digit or not, according to whether the deleted portion was over or under five.")
+    end
+
+    it 'imports a UTF-8 TBX file 5' do
+      file_path = File.expand_path('../tbx_importer/spec/sample_files/sample_1(utf-8).tbx')
+      tbx = TbxImporter::Tbx.new(file_path: file_path).import
+      expect(tbx[1][1][2]).to eq("verb")
+    end
+
     it 'imports a UTF-16 TBX file' do
       file_path = File.expand_path('../tbx_importer/spec/sample_files/sample_1(utf-16).tbx')
       tbx = TbxImporter::Tbx.new(file_path: file_path).import
@@ -56,5 +68,16 @@ describe TbxImporter do
       expect(tbx[0][-1][0]).to eq(tbx[1][-1][0])
     end
 
+    it 'imports a UTF-16 TBX file 4' do
+      file_path = File.expand_path('../tbx_importer/spec/sample_files/sample_1(utf-16).tbx')
+      tbx = TbxImporter::Tbx.new(file_path: file_path).import
+      expect(tbx[0][1][1]).to eq('')
+    end
+
+    it 'imports a UTF-16 TBX file 5' do
+      file_path = File.expand_path('../tbx_importer/spec/sample_files/sample_1(utf-16).tbx')
+      tbx = TbxImporter::Tbx.new(file_path: file_path).import
+      expect(tbx[1][1][2]).to eq('')
+    end
   end
 end
