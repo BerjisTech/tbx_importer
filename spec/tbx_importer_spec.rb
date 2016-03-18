@@ -50,6 +50,12 @@ describe TbxImporter do
       expect(tbx[1][1][2]).to eq("verb")
     end
 
+    it 'imports a UTF-8 TBX file 6' do
+      file_path = File.expand_path('../tbx_importer/spec/sample_files/sample_1(utf-8).tbx')
+      tbx = TbxImporter::Tbx.new(file_path: file_path).import
+      expect(tbx[0][4][1]).to eq("The mode of a command-line application where it does not display confirmation messages or any other user interface items that normally appear on screen. The switch for quiet mode is typically \\'\\/q\\'.")
+    end
+
     it 'imports a UTF-16 TBX file' do
       file_path = File.expand_path('../tbx_importer/spec/sample_files/sample_1(utf-16).tbx')
       tbx = TbxImporter::Tbx.new(file_path: file_path).import
