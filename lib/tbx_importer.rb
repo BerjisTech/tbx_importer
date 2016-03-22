@@ -121,11 +121,11 @@ module TbxImporter
       when [116, 101, 114, 109] #term
         write_term(reader)
       when [116, 101, 114, 109, 78, 111, 116, 101] #termNote
-        @doc[:term][:part_of_speech] = PrettyStrings::Cleaner.new(reader.read_string.downcase).pretty.gsub("/", '').gsub("\\","&#92;").gsub("'",%q(\\\')) if reader.get_attribute("type").eql?("partOfSpeech")
+        @doc[:term][:part_of_speech] = PrettyStrings::Cleaner.new(reader.read_string.downcase).pretty.gsub("\\","&#92;").gsub("'",%q(\\\')) if reader.get_attribute("type").eql?("partOfSpeech")
         @doc[:term][:vals].pop
         write_term(reader)
       when [100, 101, 115, 99, 114, 105, 112] #descrip
-        @doc[:tc][:definition] = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("/", '').gsub("\\","&#92;").gsub("'",%q(\\\\')) if reader.get_attribute("type").eql?("definition")
+        @doc[:tc][:definition] = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("\\","&#92;").gsub("'",%q(\\\')) if reader.get_attribute("type").eql?("definition")
         @doc[:tc][:vals].pop
         write_tc
       end
@@ -138,7 +138,7 @@ module TbxImporter
 
     def write_term(reader)
       return if reader.read_string.nil?
-      text = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("/", '').gsub("\\","&#92;").gsub("'",%q(\\\'))
+      text = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("\\","&#92;").gsub("'",%q(\\\'))
       word_count = text.gsub("\s+", ' ').split(' ').length
       @doc[:term][:vals] << [@doc[:tc][:id], @doc[:term][:lang], @doc[:term][:part_of_speech], text]
     end
