@@ -125,7 +125,7 @@ module TbxImporter
         @doc[:term][:vals].pop
         write_term(reader)
       when [100, 101, 115, 99, 114, 105, 112] #descrip
-        @doc[:tc][:definition] = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("/", '').gsub("\\","&#92;").gsub("'",%q(\\\')) if reader.get_attribute("type").eql?("definition")
+        @doc[:tc][:definition] = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("/", '').gsub("\\","&#92;").gsub("'",%q(\\\\')) if reader.get_attribute("type").eql?("definition")
         @doc[:tc][:vals].pop
         write_tc
       end
