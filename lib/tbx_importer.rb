@@ -26,7 +26,7 @@ module TbxImporter
       @doc = {
         source_language: "",
         tc: { id: "", counter: 0, vals: [], lang: "", definition: "" },
-        term: { lang: "", counter: 0, vals: [], part_of_speech: "" },
+        term: { lang: "", counter: 0, vals: [], part_of_speech: "", term: "" },
         language_pairs: [],
         term_entry: false
       }
@@ -94,17 +94,19 @@ module TbxImporter
 
     def parse_file(reader)
       tag_stack = []
-      generate_unique_id
       while reader.read do
-        if !tag_stack.include?(reader.name)
-          tag_stack.push(reader.name)
-          eval_state(tag_stack, reader)
-        elsif tag_stack.last == reader.name
-          if tag_stack.pop.bytes.to_a == [116, 101, 114, 109, 69, 110, 116, 114, 121]
-            generate_unique_id
+        if reader.node_type.to_i.eql?(1) && reader.read_string.nil?
+          tag_stack.pop
+        else
+          if !tag_stack.include?(reader.name)
+            tag_stack.push(reader.name)
+            eval_state(tag_stack, reader)
+          elsif tag_stack.last == reader.name
+            tag_stack.pop
           end
         end
       end
+      @doc[:tc][:vals].pop if @doc[:tc][:vals].last[0] != @doc[:term][:vals].last[0]
       reader.close
     end
 
@@ -114,6 +116,7 @@ module TbxImporter
         @doc[:lang] = reader.get_attribute("lang") || reader.get_attribute("xml:lang")
         @doc[:language_pairs] << @doc[:lang]
       when [116, 101, 114, 109, 69, 110, 116, 114, 121] #termEntry
+        generate_unique_id
         write_tc
       when [108, 97, 110, 103, 83, 101, 116] #langSet
         @doc[:term][:lang] = reader.get_attribute("lang") || reader.get_attribute("xml:lang")
@@ -122,9 +125,11 @@ module TbxImporter
         write_term(reader)
       when [116, 101, 114, 109, 78, 111, 116, 101] #termNote
         unless reader.read_string.nil?
-          @doc[:term][:part_of_speech] = PrettyStrings::Cleaner.new(reader.read_string.downcase).pretty.gsub("\\","&#92;").gsub("'",%q(\\\')) if reader.get_attribute("type").eql?("partOfSpeech")
-          @doc[:term][:vals].pop
-          write_term(reader)
+          if reader.get_attribute("type").eql?("partOfSpeech")
+            @doc[:term][:part_of_speech] = PrettyStrings::Cleaner.new(reader.read_string.downcase).pretty.gsub("\\","&#92;").gsub("'",%q(\\\'))
+            @doc[:term][:vals].pop
+            write_term_pos
+          end
         end
       when [100, 101, 115, 99, 114, 105, 112] #descrip
         @doc[:tc][:definition] = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("\\","&#92;").gsub("'",%q(\\\')) if reader.get_attribute("type").eql?("definition")
@@ -140,9 +145,13 @@ module TbxImporter
 
     def write_term(reader)
       return if reader.read_string.nil?
-      text = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("\\","&#92;").gsub("'",%q(\\\'))
-      word_count = text.gsub("\s+", ' ').split(' ').length
-      @doc[:term][:vals] << [@doc[:tc][:id], @doc[:term][:lang], @doc[:term][:part_of_speech], text]
+      @doc[:term][:term] = PrettyStrings::Cleaner.new(reader.read_string).pretty.gsub("\\","&#92;").gsub("'",%q(\\\'))
+      word_count = @doc[:term][:term].gsub("\s+", ' ').split(' ').length
+      @doc[:term][:vals] << [@doc[:tc][:id], @doc[:term][:lang], @doc[:term][:part_of_speech], @doc[:term][:term]]
+    end
+
+    def write_term_pos
+      @doc[:term][:vals] << [@doc[:tc][:id], @doc[:term][:lang], @doc[:term][:part_of_speech], @doc[:term][:term]]
     end
 
     def generate_unique_id
