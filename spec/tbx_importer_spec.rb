@@ -17,12 +17,6 @@ describe TbxImporter do
       tbx = TbxImporter::Tbx.new(file_path: file_path)
       expect(tbx.stats).to eq({:tc_count=>10, :term_count=>21, :language_pairs=>[["EN-US", "PL"], ['EN-US', 'FR']]})
     end
-
-    it 'reports the stats of a UTF-16 TBX file' do
-      file_path = File.expand_path('/Users/diasks2/Desktop/grz_viva.tbx')
-      tbx = TbxImporter::Tbx.new(file_path: file_path)
-      expect(tbx.stats).to eq({:tc_count=>708, :term_count=>1502, :language_pairs=>[["EN", "DE"]]})
-    end
   end
 
   describe '#import' do
