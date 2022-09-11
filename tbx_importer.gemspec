@@ -22,6 +22,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
   spec.add_runtime_dependency "libxml-ruby"
-  spec.add_runtime_dependency "pretty_strings", git: "https://github.com/BerjisTech/pretty_strings.git"
-  spec.add_runtime_dependency "charlock_holmes_bundle_icu", git: 'https://github.com/TM-Town/closure_tree.git'
+  # spec.add_runtime_dependency "pretty_strings"
+  # spec.add_runtime_dependency "charlock_holmes_bundle_icu"
 end
