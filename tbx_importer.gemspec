@@ -23,5 +23,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec"
   spec.add_runtime_dependency "libxml-ruby"
   # spec.add_runtime_dependency "pretty_strings"
-  spec.add_runtime_dependency "charlock_holmes"
+  # spec.add_runtime_dependency "charlock_holmes"
 end
